@@ -1,0 +1,23 @@
+# editors
+.idea/
+.vscode/
+
+# Python
+*.egg-info/
+.pytest_cache/
+__pycache__
+.cache/
+venv*/
+*/__pycache__/*
+*.egg*
+
+# data
+data/
+crowd_nav/data/
+*.mp4
+videos/
+*.log
+
+build/
+devel/
+.catkin_workspace
