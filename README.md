@@ -47,5 +47,13 @@ Note that in **run_experiments_icra.sh**, some examples of how to train differen
 This work is based on [CrowdNav](https://github.com/vita-epfl/CrowdNav) and [RelationalGraphLearning](https://github.com/ChanganVR/RelationalGraphLearning) and [SG-D3QN](https://github.com/nubot-nudt/SG-D3QN).  The authors are thankful for their works and for making them available.
 
 ## Citation
-The citation will be updated when the conference proceeding are available-
+If you use this work in your own research or wish to refer to the paper's results, please use the following BibTeX entries.
+```bibtex
+@inproceedings{IvanovicHarrisonEtAl2023,
+  author       = {Martinez-Baselga, Diego and Riazuelo, Luis and Montano, Luis},
+  title        = {Improving robot navigation in crowded environments using intrinsic rewards},
+  year         = {2023},
+  booktitle    = {{IEEE International Conference on Robotics and Automation (ICRA)}},
+  url          = {https://arxiv.org/abs/2302.06554}
+}
 
