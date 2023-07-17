@@ -99,6 +99,7 @@ def main(args):
     action_dim = env.action_space.shape[0]
     max_action = env.action_space.high
     min_action = env.action_space.low
+    print(action_dim, max_action, min_action)
     if policy.name == 'TD3RL':
         policy.set_action(action_dim, max_action, min_action)
     robot.time_step = env.time_step
@@ -134,7 +135,10 @@ def main(args):
         last_pos = np.array(robot.get_position())
         while not done:
             action, action_index = robot.act(ob)
+            print(action)
             ob, _, done, info = env.step(action)
+            print(ob)
+            exit()
             if isinstance(info, Timeout):
                 _ = _ - 0.25
             rewards.append(_)
