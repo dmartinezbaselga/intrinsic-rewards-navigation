@@ -1,0 +1,3 @@
+python ros_node.py --policy social_force
+
+python ros_node.py --model_dir data/0726/tsrl_random_encoder_v3/0 --config data/0726/tsrl_random_encoder_v3/0/config.py --policy tree_search_rl --planning_depth 1 --planning_width 10

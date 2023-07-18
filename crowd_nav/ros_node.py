@@ -1,4 +1,3 @@
-#!/usr/bin/env python
 import logging
 import argparse
 import importlib.util
@@ -21,6 +20,7 @@ from lmpcc_msgs.msg import lmpcc_obstacle_array, lmpcc_obstacle
 from nav_msgs.msg import Odometry
 from crowd_sim.envs.utils.action import ActionRot, ActionXY
 from tf.transformations import euler_from_quaternion
+from jackal_interface import JackalInterface
 
 
 class baseline_planner:
@@ -36,13 +36,16 @@ class baseline_planner:
         self.robot_full_state.v_pref = 1.0
         self.robot_full_state.radius = 0.2
         self.current_goal = False
+        self.rotating = False
+        self.last_state_time_ = rospy.Time.now()
+        self.jackal_interface = JackalInterface()
 
     def start(self):
-        self.sub_obs = rospy.Subscriber("obstacles", lmpcc_obstacle_array, self.obstacles_callback)
+        # self.sub_obs = rospy.Subscriber("obstacles", lmpcc_obstacle_array, self.obstacles_callback)
         self.sub_goal = rospy.Subscriber("/roadmap/goal", PoseStamped, self.goal_callback)
         self.sub_state = rospy.Subscriber("/Robot_1/pose", PoseStamped, self.state_callback)
         # self.human_vel_pub = rospy.Publisher('human_vel_cmd', VelInfo, queue_size=10)
-        self.robot_action_pub = rospy.Publisher('/Robot_1/cmd_vel', Twist, queue_size=10)
+        self.robot_action_pub = rospy.Publisher('/cmd_vel', Twist, queue_size=10)
         print("Ros node started")
         rospy.spin()
 
@@ -125,50 +128,75 @@ class baseline_planner:
                                                         vx=o.velocity.linear.x, vy=o.velocity.linear.y,
                                                         radius=0.2))
     
+    def process_obstacles(self):
+        self.peds_full_state.clear()
+        stamp = rospy.Time.now()
+        for o in self.jackal_interface.dynamic_obstacles:
+            if stamp - o.stamp < rospy.Duration(0.5):
+                self.peds_full_state.append(ObservableState(px=o.x, py=o.y,
+                                                        vx=o.vx, vy=o.vy,
+                                                        radius=0.2))
+
     def goal_callback(self, goal: PoseStamped):
+        print(self.robot_full_state.gx , self.robot_full_state.gy)
+        if not self.current_goal:
+            self.rotating = True
+            self.current_goal = True
+        elif sqrt((self.robot_full_state.gx - goal.pose.position.x)**2 + (self.robot_full_state.gy - goal.pose.position.y)**2):
+            self.rotating = True
         self.robot_full_state.gx = goal.pose.position.x
         self.robot_full_state.gy = goal.pose.position.y
-        print(self.robot_full_state.gx , self.robot_full_state.gy)
-        self.current_goal = True
 
     def state_callback(self, robot_state: PoseStamped):
-        if self.current_goal:
-            self.robot_full_state.px = robot_state.pose.position.x
-            self.robot_full_state.py = robot_state.pose.position.y
-            print(self.robot_full_state.px, self.robot_full_state.py)
-            _, _, theta = euler_from_quaternion([robot_state.pose.orientation.x, robot_state.pose.orientation.y,
-                                                 robot_state.pose.orientation.z, robot_state.pose.orientation.w])
-            self.robot_full_state.theta = theta
+        if self.last_state_time_ + rospy.Duration(1. / 20.) > robot_state.header.stamp:
+            action_cmd.linear.x = 0.0
+            action_cmd.linear.y = 0.0
+            action_cmd.angular.z = 0.0
+            if self.jackal_interface.enable_output_:
+                if self.rotating:
+                    _, _, theta = euler_from_quaternion([robot_state.pose.orientation.x, robot_state.pose.orientation.y, robot_state.pose.orientation.z, robot_state.pose.orientation.w])
+                    angle_to_goal = atan2(self.robot_full_state.gy - robot_state.pose.position.y, self.robot_full_state.gx - robot_state.pose.position.x)%(2*pi) - theta%(2*pi)
+                    if abs(angle_to_goal) < 0.4:
+                        self.rotating = False
+                elif self.current_goal:
+                    self.process_obstacles()
+                    self.last_state_time_ = rospy.Time.now()
+                    self.robot_full_state.px = robot_state.pose.position.x
+                    self.robot_full_state.py = robot_state.pose.position.y
+                    print(self.robot_full_state.px, self.robot_full_state.py)
+                    _, _, theta = euler_from_quaternion([robot_state.pose.orientation.x, robot_state.pose.orientation.y,
+                                                        robot_state.pose.orientation.z, robot_state.pose.orientation.w])
+                    self.robot_full_state.theta = theta
 
-            self.cur_state = JointState(self.robot_full_state, self.peds_full_state)
-            action_cmd = Twist()
+                    self.cur_state = JointState(self.robot_full_state, self.peds_full_state)
+                    action_cmd = Twist()
 
-            dis = np.sqrt((self.robot_full_state.px - self.robot_full_state.gx)**2 + (self.robot_full_state.py - self.robot_full_state.gy)**2)
-            if dis < 0.3:
-                action_cmd.linear.x = 0.0
-                action_cmd.linear.y = 0.0
-                action_cmd.angular.z = 0.0
-                self.current_goal = None
-            else:
-                robot_action = self.robot_policy.predict(self.cur_state)
-                print('robot_action', robot_action)
+                    dis = np.sqrt((self.robot_full_state.px - self.robot_full_state.gx)**2 + (self.robot_full_state.py - self.robot_full_state.gy)**2)
+                    if dis < 0.3:
+                        action_cmd.linear.x = 0.0
+                        action_cmd.linear.y = 0.0
+                        action_cmd.angular.z = 0.0
+                        self.current_goal = None
+                    else:
+                        robot_action = self.robot_policy.predict(self.cur_state)
+                        print('robot_action', robot_action)
 
-                if isinstance(robot_action, ActionXY):
-                    action_cmd.angular.z = min(pi/1.5, max(-pi/1.5, (atan2(robot_action.vy, robot_action.vx)%(2*pi) - self.robot_full_state.theta%(2*pi))/self.time_step))
-                    if abs(action_cmd.angular.z) > pi/2:
-                        action_cmd.linear.x = min(0.2, sqrt(robot_action.vy**2 + robot_action.vx**2))
-                    else:    
-                        action_cmd.linear.x = sqrt(robot_action.vy**2 + robot_action.vx**2)
-                else:
-                    robot_action = robot_action[0]
-                    action_cmd.angular.z = min(pi/1.5, max(-pi/1.5, robot_action.r/self.time_step))
-                    if abs(action_cmd.angular.z) > pi/2:
-                        action_cmd.linear.x = min(0.2, robot_action.r/self.time_step)
-                    else:    
-                        action_cmd.linear.x = robot_action.v
-                angle = action_cmd.angular.z * self.time_step + self.robot_full_state.theta
-                self.robot_full_state.vx = action_cmd.linear.x * cos(angle)
-                self.robot_full_state.vy = action_cmd.linear.x * sin(angle)
+                        if isinstance(robot_action, ActionXY):
+                            action_cmd.angular.z = min(pi/1.5, max(-pi/1.5, (atan2(robot_action.vy, robot_action.vx)%(2*pi) - self.robot_full_state.theta%(2*pi))/self.time_step))
+                            if abs(action_cmd.angular.z) > pi/2:
+                                action_cmd.linear.x = min(0.2, sqrt(robot_action.vy**2 + robot_action.vx**2))
+                            else:    
+                                action_cmd.linear.x = sqrt(robot_action.vy**2 + robot_action.vx**2)
+                        else:
+                            robot_action = robot_action[0]
+                            action_cmd.angular.z = min(pi/1.5, max(-pi/1.5, robot_action.r/self.time_step))
+                            if abs(action_cmd.angular.z) > pi/2:
+                                action_cmd.linear.x = min(0.2, robot_action.r/self.time_step)
+                            else:    
+                                action_cmd.linear.x = robot_action.v
+                        angle = action_cmd.angular.z * self.time_step + self.robot_full_state.theta
+                        self.robot_full_state.vx = action_cmd.linear.x * cos(angle)
+                        self.robot_full_state.vy = action_cmd.linear.x * sin(angle)
             self.robot_action_pub.publish(action_cmd)
 
 
