@@ -22,6 +22,60 @@ from crowd_sim.envs.utils.action import ActionRot, ActionXY
 from tf.transformations import euler_from_quaternion
 from jackal_interface import JackalInterface
 
+class dumping_info:
+    def __init__(self, action_cmd: Twist, pose: PoseStamped, robot) -> None:
+        self.robot = robot
+        self.v = []
+        self.w = []
+        self.px = []
+        self.py = []
+        self.theta = []
+        self.gx = []
+        self.gy = []
+        self.obs_x = []
+        self.obs_y = []
+        self.obs_vx = []
+        self.obs_vy = []
+    
+    def append(self, action_cmd: Twist, robot_state: FullState, obstacles):
+        self.v.append(action_cmd.linear.x)
+        self.w.append(action_cmd.angular.z)
+        self.px.append(robot_state.px)
+        self.py.append(robot_state.py)
+        self.theta.append(robot_state.theta)
+        self.gx.append(robot_state.gx)
+        self.gy.append(robot_state.gy)
+        self.obs_x.append([o.px for o in obstacles])
+        self.obs_y.append([o.py for o in obstacles])
+        self.obs_vx.append([o.vx for o in obstacles])
+        self.obs_vy.append([o.vy for o in obstacles])
+
+    
+    def dump_in_file(self, file_name, i):
+        with open(file_name, 'w') as f:
+            f.write("Episode " + str(i) + ":\n")
+            f.write("v: ")
+            for v in self.v:
+                f.write("{:.2f}, ".format(v))
+            f.write("w: ")
+            for w in self.w:
+                f.write("{:.2f}, ".format(w))
+            f.write("px: ")
+            for px in self.px:
+                f.write("{:.2f}, ".format(px))
+            f.write("py: ")
+            for py in self.py:
+                f.write("{:.2f}, ".format(py))
+            f.write("theta: ")
+            for theta in self.theta:
+                f.write("{:.2f}, ".format(theta))
+            f.write("gx: ")
+            for gx in self.gx:
+                f.write("{:.2f}, ".format(gx))
+            f.write("gy: ")
+            for gy in self.gy:
+                f.write("{:.2f}, ".format(gy))
+
 
 class baseline_planner:
     def __init__(self, policy_name):
@@ -138,7 +192,7 @@ class baseline_planner:
                                                         radius=0.2))
 
     def goal_callback(self, goal: PoseStamped):
-        print(self.robot_full_state.gx , self.robot_full_state.gy)
+        # print(self.robot_full_state.gx , self.robot_full_state.gy)
         if not self.current_goal:
             self.rotating = True
             self.current_goal = True
@@ -148,7 +202,9 @@ class baseline_planner:
         self.robot_full_state.gy = goal.pose.position.y
 
     def state_callback(self, robot_state: PoseStamped):
-        if self.last_state_time_ + rospy.Duration(1. / 20.) > robot_state.header.stamp:
+        if self.last_state_time_ + rospy.Duration(1. / 20.) < robot_state.header.stamp:
+            self.last_state_time_ = robot_state.header.stamp
+            action_cmd = Twist()
             action_cmd.linear.x = 0.0
             action_cmd.linear.y = 0.0
             action_cmd.angular.z = 0.0
@@ -158,9 +214,10 @@ class baseline_planner:
                     angle_to_goal = atan2(self.robot_full_state.gy - robot_state.pose.position.y, self.robot_full_state.gx - robot_state.pose.position.x)%(2*pi) - theta%(2*pi)
                     if abs(angle_to_goal) < 0.4:
                         self.rotating = False
+                    else:
+                        action_cmd.angular.z = 1.0
                 elif self.current_goal:
                     self.process_obstacles()
-                    self.last_state_time_ = rospy.Time.now()
                     self.robot_full_state.px = robot_state.pose.position.x
                     self.robot_full_state.py = robot_state.pose.position.y
                     print(self.robot_full_state.px, self.robot_full_state.py)
@@ -179,8 +236,6 @@ class baseline_planner:
                         self.current_goal = None
                     else:
                         robot_action = self.robot_policy.predict(self.cur_state)
-                        print('robot_action', robot_action)
-
                         if isinstance(robot_action, ActionXY):
                             action_cmd.angular.z = min(pi/1.5, max(-pi/1.5, (atan2(robot_action.vy, robot_action.vx)%(2*pi) - self.robot_full_state.theta%(2*pi))/self.time_step))
                             if abs(action_cmd.angular.z) > pi/2:
@@ -197,6 +252,7 @@ class baseline_planner:
                         angle = action_cmd.angular.z * self.time_step + self.robot_full_state.theta
                         self.robot_full_state.vx = action_cmd.linear.x * cos(angle)
                         self.robot_full_state.vy = action_cmd.linear.x * sin(angle)
+            print(action_cmd)
             self.robot_action_pub.publish(action_cmd)
 
 
