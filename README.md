@@ -53,10 +53,11 @@ This work is based on [CrowdNav](https://github.com/vita-epfl/CrowdNav) and [Rel
 If you use this work in your own research or wish to refer to the paper's results, please use the following BibTeX entries.
 ```bibtex
 @inproceedings{martinez2023improving,
-  author       = {Martinez-Baselga, Diego and Riazuelo, Luis and Montano, Luis},
-  title        = {Improving robot navigation in crowded environments using intrinsic rewards},
-  year         = {2023},
-  booktitle    = {{IEEE International Conference on Robotics and Automation (ICRA)}},
-  url          = {https://arxiv.org/abs/2302.06554}
+  author	= {Martinez-Baselga, Diego and Riazuelo, Luis and Montano, Luis},
+  booktitle	= {2023 IEEE International Conference on Robotics and Automation (ICRA)}, 
+  title		= {Improving robot navigation in crowded environments using intrinsic rewards}, 
+  year		= {2023},
+  pages		= {9428-9434},
+  doi		= {10.1109/ICRA48891.2023.10160876},
+  url           = {https://arxiv.org/abs/2302.06554}
 }
-
