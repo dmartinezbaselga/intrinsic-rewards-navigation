@@ -1,5 +1,6 @@
 import rospy
 from sensor_msgs.msg import Joy
+from nav_msgs.msg import Odometry
 from geometry_msgs.msg import PoseStamped, Pose
 from std_msgs.msg import Float64MultiArray, ColorRGBA
 import numpy as np
@@ -32,6 +33,7 @@ class Goal:
 class JackalInterface:
     def __init__(self) -> None:
         self.bluetooth_sub_ = rospy.Subscriber("/bluetooth_teleop/joy", Joy, self.bluetooth_callback, queue_size=1)
+        self.bluetooth_sub_ = rospy.Subscriber("/jackal_velocity_controller/odom", Odometry, self.odometry_callback, queue_size=1)
         self.last_state_time_ = rospy.Time.now()
         self.state_received = False
         self.robot_state = State()
@@ -42,12 +44,18 @@ class JackalInterface:
         self.obs_received_ = np.zeros(self.max_obstacles)
         self.obs_subs_ = []
         self.dynamic_obstacles = []
+        self.v = 0.0
+        self.w = 0.0
         self.first_obstacle_id = -1
         self.dt = 0.2
         self.obs_pub_ = ros_visuals.ROSMarkerPublisher("/obstacles/visuals", 10)
         for i in range(self.max_obstacles):
             self.obs_subs_.append(rospy.Subscriber("/obstacle" + str(i+1) + "/path_prediction", Float64MultiArray, self.optitrack_obstacle_callback, queue_size=1))
         # Need to fix dt and the path prediction topic
+    
+    def odometry_callback(self, msg:Odometry):
+        self.v = msg.twist.twist.linear.x
+        self.w = msg.twist.twist.angular.z
 
     def bluetooth_callback(self, msg: Joy):
         self.enable_output_ = msg.axes[2] < -0.9
@@ -88,6 +96,7 @@ class JackalInterface:
         arrow = self.obs_pub_.get_arrow()
         arrow.set_color(0)
         arrow.set_scale(0.5, 0.15, 0.15)
+        arrow.set_lifetime(0.5)
 
         pose = Pose()
         pose.position.x = msg.data[0]

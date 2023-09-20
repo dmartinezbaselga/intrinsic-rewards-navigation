@@ -11,9 +11,9 @@ class SocialForce(Policy):
         self.trainable = False
         self.multiagent_training = None
         self.kinematics = 'holonomic'
-        self.initial_speed = 1
-        self.v0 = 5.
-        self.sigma = 0.75
+        self.initial_speed = 1.5
+        self.v0 = 5
+        self.sigma = 1.5
         self.sim = None
 
     def configure(self, config, device):
