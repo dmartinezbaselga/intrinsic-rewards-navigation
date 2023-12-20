@@ -138,7 +138,6 @@ def main(args):
             print(action)
             ob, _, done, info = env.step(action)
             print(ob)
-            exit()
             if isinstance(info, Timeout):
                 _ = _ - 0.25
             rewards.append(_)
