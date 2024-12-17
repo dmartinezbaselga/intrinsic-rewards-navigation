@@ -1,0 +1,32 @@
+model_predictor: CSGAN
+params:
+  dt: 0.1
+  prediction_horizon: 1.2
+  history_length: 8
+
+  action:
+    span: 360
+    n_actions: 10
+  
+  cost: # Only applicable to MPC controller
+    sigma:
+      h: 1.0
+      s: 0.66
+      r: 0.33
+    q:
+      obs: 1.0
+      goal: 5.0
+      wind: 5.0
+      dev: 1.0
+    
+    discrete_cost_type: "winding"
+  
+  predictor:
+    path: csgan.pt
+    use_gpu: False
+    num_samples: 5
+    deviation_penalty: True
+    use_sgan_action: False
+    use_sgan_mode: False
+  
+  log_cost: False

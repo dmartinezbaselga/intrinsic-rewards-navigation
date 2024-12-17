@@ -62,6 +62,7 @@ def main(args):
     env_config = config.EnvConfig(args.debug)
     reward_estimator.configure(env_config)
     policy.reward_estimator = reward_estimator
+
     if policy_config.name == "model_predictive_rl":
         if args.planning_depth is not None:
             policy_config.model_predictive_rl.do_action_clip = True

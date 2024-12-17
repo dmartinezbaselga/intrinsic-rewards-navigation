@@ -421,14 +421,14 @@ class RE3():
                 nn.Linear(config.gcn.X_dim, 256),
                 nn.ReLU(),
                 nn.Linear(256, 128)
-            )
+            ).to(device)
         elif config.name == "tree_search_rl":
             self._encoder_net = nn.Sequential(
                 GraphModel(config, robot_state_dim, human_state_dim),
                 nn.Linear(config.gcn.X_dim, 256),
                 nn.ReLU(),
                 nn.Linear(256, embeds_dim)
-            )
+            ).to(device)
         else:
             raise ValueError("Curiosity not implemented for this method")
         # Creates ModelV2 embedding module / layers.

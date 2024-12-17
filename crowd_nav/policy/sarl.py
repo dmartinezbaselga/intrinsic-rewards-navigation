@@ -110,7 +110,7 @@ class SARL(MultiHumanRL):
         with_global_state = config.sarl.with_global_state
         self.model = ValueNetwork(self.input_dim(), self.self_state_dim, mlp1_dims, mlp2_dims, mlp3_dims,
                                   attention_dims, with_global_state, self.cell_size, self.cell_num, self.device,
-                                  self.exploration_alg)
+                                  self.exploration_alg).to(device)
         if self.with_om:
             self.name = 'OM-SARL'
         logging.info('Policy: {} {} global state'.format(self.name, 'w/' if with_global_state else 'w/o'))

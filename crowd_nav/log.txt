@@ -270,3 +270,57 @@
 2023-07-12 16:03:34, INFO: Square width: 10, circle width: 4
 2023-07-12 16:03:34, INFO: rotation constraint: 0.5235987755982988
 2023-07-12 16:03:34, INFO: Agent is invisible and has unicycle kinematic constraint
+2024-04-24 10:17:41, INFO: Using device: cpu
+2024-04-24 10:17:41, INFO: Loaded RL weights with best VAL
+2024-04-24 10:17:41, INFO: Query environment: False
+2024-04-24 10:17:41, INFO: Policy: OM-SARL w/ global state
+2024-04-24 10:17:41, INFO: human number: 5
+2024-04-24 10:17:41, INFO: Not randomize human's radius and preferred speed
+2024-04-24 10:17:41, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
+2024-04-24 10:17:41, INFO: Square width: 10, circle width: 4
+2024-04-24 10:17:41, INFO: rotation constraint: 0.5235987755982988
+2024-04-24 10:17:41, INFO: Agent is invisible and has holonomic kinematic constraint
+2024-04-24 10:18:24, INFO: Using device: cpu
+2024-04-24 10:18:24, INFO: Loaded RL weights with best VAL
+2024-04-24 10:18:24, INFO: Query environment: False
+2024-04-24 10:18:24, INFO: Policy: OM-SARL w/ global state
+2024-04-24 10:18:24, INFO: human number: 5
+2024-04-24 10:18:24, INFO: Not randomize human's radius and preferred speed
+2024-04-24 10:18:24, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
+2024-04-24 10:18:24, INFO: Square width: 10, circle width: 4
+2024-04-24 10:18:24, INFO: rotation constraint: 0.5235987755982988
+2024-04-24 10:18:24, INFO: Agent is invisible and has holonomic kinematic constraint
+2024-04-24 10:25:15, INFO: Using device: cpu
+2024-04-24 10:25:15, INFO: Loaded RL weights with best VAL
+2024-04-24 10:29:56, INFO: Using device: cpu
+2024-04-24 10:29:56, INFO: Loaded RL weights with best VAL
+2024-04-24 10:37:02, INFO: Using device: cpu
+2024-04-24 10:37:02, INFO: Loaded RL weights with best VAL
+2024-04-24 10:37:02, INFO: Query environment: False
+2024-04-24 10:37:02, INFO: Policy: OM-SARL w/ global state
+2024-04-24 10:37:02, INFO: human number: 5
+2024-04-24 10:37:02, INFO: Not randomize human's radius and preferred speed
+2024-04-24 10:37:02, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
+2024-04-24 10:37:02, INFO: Square width: 10, circle width: 4
+2024-04-24 10:37:02, INFO: rotation constraint: 0.5235987755982988
+2024-04-24 10:37:02, INFO: Agent is invisible and has holonomic kinematic constraint
+2024-04-24 10:37:17, INFO: Using device: cpu
+2024-04-24 10:37:17, INFO: Loaded RL weights with best VAL
+2024-04-24 10:37:17, INFO: Query environment: False
+2024-04-24 10:37:17, INFO: Policy: OM-SARL w/ global state
+2024-04-24 10:37:17, INFO: human number: 5
+2024-04-24 10:37:17, INFO: Not randomize human's radius and preferred speed
+2024-04-24 10:37:17, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
+2024-04-24 10:37:17, INFO: Square width: 10, circle width: 4
+2024-04-24 10:37:17, INFO: rotation constraint: 0.5235987755982988
+2024-04-24 10:37:17, INFO: Agent is invisible and has holonomic kinematic constraint
+2024-04-24 10:42:55, INFO: Using device: cpu
+2024-04-24 10:42:55, INFO: Loaded RL weights with best VAL
+2024-04-24 10:42:55, INFO: Query environment: False
+2024-04-24 10:42:55, INFO: Policy: OM-SARL w/ global state
+2024-04-24 10:42:55, INFO: human number: 5
+2024-04-24 10:42:55, INFO: Not randomize human's radius and preferred speed
+2024-04-24 10:42:55, INFO: Training simulation: circle_crossing, test simulation: circle_crossing
+2024-04-24 10:42:55, INFO: Square width: 10, circle width: 4
+2024-04-24 10:42:55, INFO: rotation constraint: 0.5235987755982988
+2024-04-24 10:42:55, INFO: Agent is invisible and has holonomic kinematic constraint

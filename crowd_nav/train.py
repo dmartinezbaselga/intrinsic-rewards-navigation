@@ -88,6 +88,7 @@ def main(args):
     logging.info('Current re_arrival: {}'.format(sys_args.re_arrival))
     logging.info('Current config content is :{}'.format(config))
     device = torch.device("cuda:0" if torch.cuda.is_available() and args.gpu else "cpu")
+
     logging.info('Using device: %s', device)
     writer = SummaryWriter(log_dir=args.output_dir)
 
@@ -261,6 +262,7 @@ def main(args):
     eps_count = 0
     fw = open(sys_args.output_dir + '/data.txt', 'w')
     print("%f %f %f %f %f" % (0,0,0,0,0), file=fw)
+    policy.set_device(device)
     while episode < train_episodes:
         if args.resume:
             epsilon = epsilon_end

@@ -1,4 +1,5 @@
 import torch
+import numpy as np
 
 
 class FullState(object):
@@ -17,6 +18,8 @@ class FullState(object):
         self.goal_position = (self.gx, self.gy)
         self.velocity = (self.vx, self.vy)
 
+        self.sim_heading = np.arctan2(self.vy, self.vx)
+
     def __add__(self, other):
         return other + (self.px, self.py, self.vx, self.vy, self.radius, self.gx, self.gy, self.v_pref, self.theta)
 
@@ -29,6 +32,27 @@ class FullState(object):
 
     def get_observable_state(self):
         return ObservableState(self.px, self.py, self.vx, self.vy, self.radius)
+    
+    def get_heading(self):
+        return self.sim_heading
+    
+    def get_position(self):
+        return np.array((self.px, self.py))
+    
+    def get_velocity(self):
+        return self.vx, self.vy
+    
+    def get_goal(self):
+        return self.gx, self.gy
+    
+    def get_sim_heading(self):
+        return self.sim_heading
+    
+    def get_vpref(self):
+        return self.v_pref
+    
+    def set_sim_heading(self, sim_heading):
+        self.sim_heading = sim_heading
 
 
 class ObservableState(object):
@@ -50,6 +74,12 @@ class ObservableState(object):
 
     def to_tuple(self):
         return self.px, self.py, self.vx, self.vy, self.radius
+    
+    def get_position(self):
+        return self.px, self.py
+    
+    def get_velocity(self):
+        return self.vx, self.vy
 
 
 class JointState(object):
@@ -59,6 +89,7 @@ class JointState(object):
             assert isinstance(human_state, ObservableState)
 
         self.robot_state = robot_state
+        self.self_state = robot_state
         self.human_states = human_states
 
     def to_tensor(self, add_batch_size=False, device=None):

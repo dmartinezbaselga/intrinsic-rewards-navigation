@@ -9,7 +9,7 @@ d=1.0
 for ((i=0;i<1;i+=1))
 do
 
-	python3.6 train.py \
+	python train.py \
 	--policy tree-search-rl \
 	--output_dir data/$day/tsrl_random_encoder/$i \
 	--randomseed $i  \
@@ -18,8 +18,9 @@ do
 	--re_collision $b \
 	--re_arrival $c \
 	--safe_weight $d \
-	--human_num 10
-
+	--human_num 10 
+done
+exit
 	python3.6 train.py \
 	--policy tree-search-rl \
 	--output_dir data/$day/tsrl_curiosity/$i \
